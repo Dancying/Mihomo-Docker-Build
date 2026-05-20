@@ -17,12 +17,17 @@ if [ -z "$WEBUI_SECRET" ]; then
     echo "***************************************************"
 fi
 
-trap "killall -9 mihomo 2>/dev/null || true; exit 0" SIGTERM
-trap "killall -9 mihomo 2>/dev/null || true" SIGHUP
+_term() {
+    killall -9 mihomo 2>/dev/null || true
+    exit 0
+}
+trap _term SIGTERM SIGINT SIGHUP
 
 echo "====> Starting Mihomo core engine loop..."
 while true; do
-    /app/mihomo -d /config -f /config/config.yaml -ext-ctl "$WEBUI_LISTEN_ADDR" -ext-ui /config/WEBUI -secret "${WEBUI_SECRET}"
+    /app/mihomo -d /config -f /config/config.yaml -ext-ctl "$WEBUI_LISTEN_ADDR" -ext-ui /config/WEBUI -secret "${WEBUI_SECRET}" &
+    MIHOMO_PID=$!
+    wait "$MIHOMO_PID" || true
     killall -9 mihomo 2>/dev/null || true
     sleep 2
 done
