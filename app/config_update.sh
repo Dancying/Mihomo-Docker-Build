@@ -47,4 +47,4 @@ update_config_kv "mode" "$MIHOMO_MODE"
 update_config_kv "allow-lan" "$ALLOW_LAN"
 update_config_kv "mixed-port" "$MIXED_PORT"
 
-[ "$1" = "cron" ] && pgrep -x "mihomo" >/dev/null && pkill -x mihomo || true
+[ "$1" = "cron" ] && killall -9 mihomo 2>/dev/null || true
