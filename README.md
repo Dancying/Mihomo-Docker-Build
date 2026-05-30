@@ -81,6 +81,7 @@ docker run -d \
 | `SUB_URL` | 无 | 你的订阅/节点链接（例如：https://example.com/sub ）。 |
 | `UPDATE_INTERVAL` | 无 | 订阅自动更新间隔时间（单位：小时，例如：`6`）。若不配置则不会启用自动定时更新功能。 |
 | `ALLOW_LAN` | 无 | 是否允许局域网外部访问（可选值：`true` 或 `false`）。 |
+| `BIND_ADDRESS` | 绑定地址 | 配合局域网使用，需设置为 0.0.0.0 |
 | `MIXED_PORT` | 无 | 动态修改或置顶混合代理端口（例如：`7890`）。 |
 | `MIHOMO_MODE` | 无 | 动态修改运行模式（可选值：`Rule`, `Global`, `Direct`）。 |
 | `IPV6` | 无 | 动态修改 IPv6 总开关（可选值：`true` 或 `false`）。 |
