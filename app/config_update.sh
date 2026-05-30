@@ -49,6 +49,7 @@ fi
 
 if [ -f "$CONFIG_FILE" ]; then
     update_config_kv "ipv6" "$IPV6"
+    update_config_kv "bind-address" "$BIND_ADDRESS"
     update_config_kv "mode" "$MIHOMO_MODE"
     update_config_kv "allow-lan" "$ALLOW_LAN"
     update_config_kv "mixed-port" "$MIXED_PORT"
