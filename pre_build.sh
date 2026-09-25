@@ -2,7 +2,7 @@
 
 set -e
 
-MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.29/mihomo-linux-amd64-v2-v1.19.29.gz"
+MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.31/mihomo-linux-amd64-v2-v1.19.31.gz"
 METADB_URL="https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb"
 GEOSITE_URL="https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
 WEBUI_URL="https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
