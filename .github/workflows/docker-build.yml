@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
+      - 'README*'
+      - 'docs/**'
   workflow_dispatch:
 
 concurrency:
