@@ -1,123 +1,62 @@
 # Mihomo-Docker-Build
 
-一个基于 Alpine Linux 的轻量化 Mihomo (Clash Meta) 容器构建方案。支持自动化依赖预处理、多环境变量动态配置以及 GitHub Actions 自动化容器构建。  
+一个以 Alpine Linux 为基础镜像的 **“mihomo 内核 + metacubexd 面板”** 轻量化 Docker 容器构建项目。  
 
----
 
-## 🚀 特性
+## 功能特性
 
-- **高效流水线构建**：依赖准备与镜像构建解耦，借助本地或 CI/CD 预处理脚本，打包核心文件和分发。  
-- **参数动态化注入**：通过容器环境变量覆盖配置，免除手动修改配置文件，运行时即可动态调整网络策略。  
-- **多重请求头订阅**：多 User-Agent 轮询订阅与回退，内置失败容错与历史归档，提升订阅更新成功率。  
-- **高可用守护进程**：内置防崩溃与轻量级进程守护机制，在定时更新或核心异常退出时无缝自动完成重载。  
-- **全平台容器兼容**：规范基础镜像路径声明，消除工具链差异，兼容 Docker 与 Podman 等主流环境。  
+✅ 容器内部打包 mihomo 内核、metacubexd 面板、geoip 数据库，减少启动时的网络等待  
+✅ 容器启动时可传入订阅链接下载 mihomo 格式的配置文件，并允许控制配置文件定时更新  
+✅ 容器支持传入多个环境变量，例如混合代理端口、允许局域网访问等，并写入到配置文件  
 
----
+> [!TIP]  
+> 本项目使用 Github Actions 自动构建 docker 镜像，镜像目前仅在 [GHCR](https://github.com/Dancying/Mihomo-Docker-Build/pkgs/container/mihomo) 上托管。  
 
-## 🛠️ 项目结构
 
-```text
-├── .github/workflows/
-│   └── docker-build.yml   # GitHub Actions 自动化构建工作流
-├── app/
-│   ├── app_init.sh        # 容器初始化脚本（环境变量与资源目录准备）
-│   ├── config_update.sh   # 订阅更新与配置参数修改核心脚本
-│   ├── config_loop.sh     # 订阅更新定时循环与重载监控脚本
-│   └── entrypoint.sh      # 容器主入口守护脚本
-├── Dockerfile             # 容器镜像构建文件
-└── pre_build.sh           # 容器构建前置依赖下载脚本
-```
+## 容器运行
 
----
-
-## 📦 构建与部署
-
-### 1. 本地构建流程
-
-在构建镜像之前，必须先运行预处理脚本以准备二进制程序和数据：  
-
-```bash
-# 执行前置脚本（下载 Mihomo 核心、规则数据、Web UI）
-bash pre_build.sh
-
-# 使用 Docker 构建镜像
-docker build -t mihomo:latest .
-```
-
-### 2. 自动化构建 (GitHub Actions)
-
-项目内置 GitHub Actions 工作流。只需将代码推送到 `main` 分支， GitHub Actions 便会自动触发构建并将镜像托管至 GitHub Container Registry (`ghcr.io`)。  
-
----
-
-## ⚙️ 容器运行
-
-```bash
+```sh
 docker run -d \
   --name mihomo \
-  --restart always \
   -p 7890:7890 \
   -p 9090:9090 \
   -v /opt/mihomo/config:/config \
   -e SUB_URL="http://192.168.1.1/sub?token=123456" \
-  -e USE_PROXYSCOTCH="false" \
-  -e UPDATE_INTERVAL=12 \
   -e MIXED_PORT=7890 \
   -e ALLOW_LAN="true" \
-  -e IPV6="false" \
-  -e MIHOMO_MODE="rule" \
-  -e BIND_ADDRESS="0.0.0.0" \
-  -e AUTHENTICATION="username:password123" \
-  -e WEBUI_LISTEN_ADDR="0.0.0.0:9090" \
   -e WEBUI_SECRET="secret123456" \
   ghcr.io/dancying/mihomo:latest
 ```
 
----
+> [!IMPORTANT]  
+> 请阅读此文档以获取最新的环境变量参数说明和对应使用场景：[docs/env.md](docs/env.md)  
 
-## 📌 环境变量说明
 
-所有环境变量均为**可选**参数。  
+## 开源协议
 
-### 1. 容器运行配置
+本项目使用 MIT 开源协议。  
 
-以下变量用于控制容器的行为（如更新频率、订阅源、WebUI 设置等）。  
+```
+MIT License
 
-| 环境变量 | 默认值 | 描述 |
-| :--- | :--- | :--- |
-| `SUB_URL` | 无 | 订阅链接地址（例如：`http://192.168.1.1/sub?token=123456`）。 |
-| `USE_PROXYSCOTCH` | 无 | 是否使用 Proxyscotch 下载订阅配置（可选：`true`）。 |
-| `UPDATE_INTERVAL` | 无 | 订阅配置文件定时更新周期（单位：小时）。 |
-| `WEBUI_LISTEN_ADDR`| `0.0.0.0:9090` | Web UI 控制面板的外部监听地址与端口。 |
-| `WEBUI_SECRET` | 随机生成 | Web UI 控制面板的访问密钥。默认随机生成（查看日志获取）。 |
-| `WEBUI_OVERWRITE` | `true` | 是否在启动时强制覆盖 Web UI 控制面板资源（可选：`true` / `false`）。 |
+Copyright (c) 2026 Dancying
 
-### 2. 配置文件重写
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-以下变量会直接修改并应用到 `/config/config.yaml` 配置文件中。  
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-| 环境变量 | 默认值 | 描述 |
-| :--- | :--- | :--- |
-| `MIXED_PORT` | 无 | 混合代理端口（例如：`7890`） |
-| `ALLOW_LAN` | 无 | 是否允许局域网外部设备访问（可选：`true` / `false`）。 |
-| `IPV6` | 无 | 是否开启 IPv6 支持（可选：`true` / `false`）。 |
-| `MIHOMO_MODE` | 无 | 运行模式（可选：`rule`, `global`, `direct`）。 |
-| `BIND_ADDRESS` | 无 | 局域网监听地址（一般设置为 `"*"` ）。 |
-| `AUTHENTICATION` | 无 | 代理身份验证。多账号用逗号分隔（例如：`"user1:pwd1,user2:pwd2"`）。 |
-| `SKIP_AUTH_PREFIXES` | 无 | 免身份验证的网段范围。多网段用逗号分隔（例如：`127.0.0.1/8,::1/128`）。 |
-
----
-
-## 📂 挂载卷说明
-
-`/config`：核心工作目录。容器启动后会自动在此目录下生成配置文件、控制面板（`WEBUI` 子目录）以及更新历史记录（`history` 子目录）。  
-
-```txt
-/config
-├── config.yaml                 # 当前使用的配置文件
-├── WEBUI/                      # Metacubexd 控制面板文件
-└── history/                    # 历史配置文件归档目录
-    ├── config_*.yaml           # 更新成功前使用的配置文件
-    └── config_*_failed_*.yaml  # 下载更新校验失败的配置文件
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```
 
