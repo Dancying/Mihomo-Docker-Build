@@ -107,3 +107,10 @@ metacubexd 面板中允许手动更新面板版本，若设置 `WEBUI_OVERWRITE=
 
 参数说明：https://wiki.metacubex.one/config/general/#_3  
 
+
+## EXTRA_CONFIG_REPLACE
+
+指定文件替换 `config.yaml` 中对应键值，例如 `EXTRA_CONFIG_REPLACE="/config/extra.yaml"` 。  
+
+需要自定义 dns 或 tun 配置时可以使用该变量，若不熟悉 mihomo 配置规则不建议使用。  
+

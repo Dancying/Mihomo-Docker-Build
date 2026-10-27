@@ -74,7 +74,22 @@ register_key() {
 [ -n "$AUTHENTICATION" ] && export AUTHENTICATION && YQ_EXPR="${YQ_EXPR} .authentication = (env(AUTHENTICATION) | split(\",\") | .[] style=\"double\") |" && register_key "authentication"
 [ -n "$SKIP_AUTH_PREFIXES" ] && export SKIP_AUTH_PREFIXES && YQ_EXPR="${YQ_EXPR} .skip-auth-prefixes = (env(SKIP_AUTH_PREFIXES) | split(\",\")) |" && register_key "skip-auth-prefixes"
 
-if [ -n "$YQ_EXPR" ]; then
-    yq eval -i "${YQ_EXPR% |}" "$CONFIG_FILE"
+if [ -n "$EXTRA_CONFIG_REPLACE" ] && [ -f "$EXTRA_CONFIG_REPLACE" ]; then
+    if yq eval '.' "$EXTRA_CONFIG_REPLACE" >/dev/null 2>&1; then
+        yq eval -i '. * load("'$EXTRA_CONFIG_REPLACE'")' "$CONFIG_FILE"
+        OVERRIDE_KEYS=$(yq eval 'keys | .[]' "$EXTRA_CONFIG_REPLACE" 2>/dev/null || true)
+        for key in $OVERRIDE_KEYS; do
+            register_key "$key"
+        done
+        echo "====> Extra config replace applied."
+    else
+        echo "====> Extra config file invalid."
+    fi
+elif [ -n "$EXTRA_CONFIG_REPLACE" ]; then
+    echo "====> Extra config file missing."
+fi
+
+if [ -n "$YQ_EXPR" ] || [ -n "$DEL_KEYS" ]; then
+    [ -n "$YQ_EXPR" ] && yq eval -i "${YQ_EXPR% |}" "$CONFIG_FILE"
     yq eval -i ". as \$rest | ({ ${OBJ_KEYS%, } } | with_entries(select(.value != null))) + (\$rest | del(${DEL_KEYS%, }))" "$CONFIG_FILE"
 fi
